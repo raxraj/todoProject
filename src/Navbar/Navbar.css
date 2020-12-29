@@ -1,0 +1,35 @@
+/* @import url('https://fonts.googleapis.com/css2?family=Staatliches&display=swap'); */
+
+nav{
+    background-color: #55C1FF ;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+}
+.branding,.navigation{
+    padding: 8px 0px 0px 20px;
+    display: inline-block;
+}
+
+.branding{
+    font-size: 40px;
+    font-family: 'Staatliches';
+}
+.navigation{
+    padding: 8px 20px 0px 0px;
+}
+.navigation ul li{
+    display: inline-block;
+    
+}
+.navigation ul li{
+    text-decoration: none;
+    color: white;
+    padding: 5px 15px 5px 15px;
+}
+.navigation ul li:hover{
+    text-decoration: none;
+    color: black;
+    background-color: white;
+    transition: 0.3s ease-in;
+}
