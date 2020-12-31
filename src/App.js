@@ -3,6 +3,7 @@ import Navbar from "./Navbar/Navbar";
 
 import { Router } from "@reach/router";
 import Login from "./Login/Login";
+import SignUp from "./Login/Signup";
 
 function App() {
   return (
@@ -11,6 +12,7 @@ function App() {
       <Router>
         <Home path='/'/>
         <Login path='/login'/>
+        <SignUp path='/signup'/>
       </Router>
     </div>
   );
