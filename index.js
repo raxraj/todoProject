@@ -1,6 +1,9 @@
 const express = require('express')
 const app = express()
 const mongoose = require('mongoose')
+const joi = require('joi')
+const bcrypt = require('bcrypt')
+
 mongoose.connect('mongodb://127.0.0.1:27017/dome', { useNewUrlParser: true, useUnifiedTopology: true })
     .then(
         () => { console.log("MongoDB Connected") },
@@ -29,46 +32,40 @@ const userModel = mongoose.model('user', userSchema)
 
 
 
-app.post('/register',
-    (req, res, next) => {
-        if(req.body.userName.length >= 6) {
-            if(req.body.fullName >= 3) {
-                if(req.body.password >=6 && req.body.password <= 20){
-                    next()
-                }
-                else{
-                    res.send({
-                        done:false,
-                        message: 'Password should be atleast 6 char and atmost 20 char'
-                    })
-                }
+app.post('/register', (req, res) => {
+        let schema = joi.object({
+            userName: joi.string().alphanum().min(6).max(20),
+            fullName: joi.string().alphanum().min(3).max(20),
+            password: joi.string().alphanum().min(8).max(20),
+            email: joi.string().email() 
+        })
+        let { userName, fullName, password } = req.body
+
+        const hashedPassword = bcrypt.hashSync(password, 10)
+
+        let data = { userName, fullName, password }
+
+        const validation = schema.validate(data)
+        if(validation.error){
+            return res.send({done:false, message: validation.error.details[0].context.key})
+            
+        }
+        data.password = hashedPassword
+
+        userModel.findOne({userName: userName}).then(foundUser=>{
+            if(foundUser){
+                return res.send({done:false, message: 'userName'})
             }
             else{
-                res.send({
-                    done : false,
-                    message: "Fullname should be atleast 3 char long"
+                new userModel(data).save().then((registeredUser) => {
+                    if (registeredUser) {
+                        res.send({
+                            done: true,
+                            registeredUser
+                        })
+        
+                    }
                 })
-            }
-        }
-        else{
-            res.send(
-                {
-                    done:false,
-                    message: "userName should be atleast 6 Char long"
-                }
-            )
-        }
-    },
-    (req, res) => {
-        let { userName, fullName, password } = req.body
-        let data = { userName, fullName, password }
-        new userModel(data).save().then((registeredUser) => {
-            if (registeredUser) {
-                res.send({
-                    done: true,
-                    registeredUser
-                })
-
             }
         })
     })
@@ -78,7 +75,7 @@ app.post('/login', (req, res) => {
     var password = req.body.password
     userModel.findOne({ userName: userName }).then((user) => {
         if (user) {
-            if (password == user.password) {
+            if (bcrypt.compareSync(password,user.password)) {
                 res.send({
                     done: true,
                     message: "Login Successful!"
