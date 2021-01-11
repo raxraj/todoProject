@@ -1,0 +1,48 @@
+.heading {
+  text-align: center;
+  margin-top: 50px;
+  font-weight: 800;
+  font-size: 1.5em;
+}
+.todos {
+  margin: 50px;
+}
+
+.create-todo{
+    padding: 10px;
+    padding-left: 0px;
+    display: flex;
+    justify-content: flex-start;
+}
+
+.todo {
+  border: 2px dashed black;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+}
+.todoButton, .deleteButton{
+  background-color: transparent; /* Green */
+  border: none;
+  color: #55C1FF;
+  padding: 15px 32px;
+  border: 1px solid #55C1FF;
+  margin: 0px 10px 0px 10px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+}
+.todoButton:hover, .deleteButton:hover{
+    background-color: #55C1FF;
+    color: white;
+    transition: 0.3s ease-in-out;
+    cursor: pointer;
+}
+.deleteButton{
+    color: red;
+    border: 1px solid red;
+}
+.deleteButton:hover{
+    background-color: red;
+}

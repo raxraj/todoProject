@@ -1,6 +1,6 @@
 import './Login.css'
 import axios from 'axios'
-import { Link } from "@reach/router";
+import { Link, navigate } from "@reach/router";
 import { useState } from "react";
 
 const Login = (props) => {
@@ -18,9 +18,8 @@ const Login = (props) => {
         )
             .then((response) => {
                 if (response.data.done) {
-                    setUserName('')
-                    setPassword('')
-                    setMessage("Successfully Logged In!")
+                    
+                    navigate("/dashboard")
                 }
                 else{
                     setUserName('')
