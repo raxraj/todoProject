@@ -25,7 +25,20 @@ const userSchema = mongoose.Schema({
     password: {
         type: String,
         required: true
-    }
+    },
+    todos:[
+        {
+            todotext:{
+                type: String,
+                required: true
+            },
+            isDone: {
+                type: Boolean,
+                required:true,
+                default: false
+            }
+        }
+    ]
 })
 
 const userModel = mongoose.model('user', userSchema)
@@ -37,7 +50,6 @@ app.post('/register', (req, res) => {
             userName: joi.string().alphanum().min(6).max(20),
             fullName: joi.string().alphanum().min(3).max(20),
             password: joi.string().alphanum().min(8).max(20),
-            email: joi.string().email() 
         })
         let { userName, fullName, password } = req.body
 
@@ -92,6 +104,20 @@ app.post('/login', (req, res) => {
             res.send({
                 done: false,
                 message: "User not Found!"
+            })
+        }
+    })
+})
+
+app.post('/addTodo', (req,res)=>{
+    const {userName, todotext} = req.body
+    userModel.findOne({userName}).then(foundUser=>{
+        if(foundUser){
+            foundUser.todos.push({todotext})
+            foundUser.save().then(updatedUser=>{
+                if(updatedUser){
+                    res.send({done:true, updatedUser})
+                }
             })
         }
     })
