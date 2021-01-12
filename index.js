@@ -90,7 +90,8 @@ app.post('/login', (req, res) => {
             if (bcrypt.compareSync(password,user.password)) {
                 res.send({
                     done: true,
-                    message: "Login Successful!"
+                    message: "Login Successful!",
+                    user: user
                 })
             }
             else {
@@ -118,6 +119,19 @@ app.post('/addTodo', (req,res)=>{
                 if(updatedUser){
                     res.send({done:true, updatedUser})
                 }
+            })
+        }
+    })
+})
+
+app.post('/getTodos',(req,res)=>{
+    const {userName} = req.body
+    userModel.findOne({userName}).then(foundUser=>{
+        if(foundUser){
+            console.log(foundUser)
+            res.send({
+                done:true,
+                todos: foundUser.todos
             })
         }
     })
