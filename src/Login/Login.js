@@ -18,7 +18,8 @@ const Login = (props) => {
         )
             .then((response) => {
                 if (response.data.done) {
-                    
+                    localStorage.removeItem('username')
+                    localStorage.setItem('username', response.data.user.userName)
                     navigate("/dashboard")
                 }
                 else{
