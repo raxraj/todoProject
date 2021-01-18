@@ -26,15 +26,15 @@ const userSchema = mongoose.Schema({
         type: String,
         required: true
     },
-    todos:[
+    todos: [
         {
-            todotext:{
+            todotext: {
                 type: String,
                 required: true
             },
             isDone: {
                 type: Boolean,
-                required:true,
+                required: true,
                 default: false
             }
         }
@@ -46,48 +46,48 @@ const userModel = mongoose.model('user', userSchema)
 
 
 app.post('/register', (req, res) => {
-        let schema = joi.object({
-            userName: joi.string().alphanum().min(6).max(20),
-            fullName: joi.string().alphanum().min(3).max(20),
-            password: joi.string().alphanum().min(8).max(20),
-        })
-        let { userName, fullName, password } = req.body
-
-        const hashedPassword = bcrypt.hashSync(password, 10)
-
-        let data = { userName, fullName, password }
-
-        const validation = schema.validate(data)
-        if(validation.error){
-            return res.send({done:false, message: validation.error.details[0].context.key})
-            
-        }
-        data.password = hashedPassword
-
-        userModel.findOne({userName: userName}).then(foundUser=>{
-            if(foundUser){
-                return res.send({done:false, message: 'userName'})
-            }
-            else{
-                new userModel(data).save().then((registeredUser) => {
-                    if (registeredUser) {
-                        res.send({
-                            done: true,
-                            registeredUser
-                        })
-        
-                    }
-                })
-            }
-        })
+    let schema = joi.object({
+        userName: joi.string().alphanum().min(6).max(20),
+        fullName: joi.string().alphanum().min(3).max(20),
+        password: joi.string().alphanum().min(8).max(20),
     })
+    let { userName, fullName, password } = req.body
+
+    const hashedPassword = bcrypt.hashSync(password, 10)
+
+    let data = { userName, fullName, password }
+
+    const validation = schema.validate(data)
+    if (validation.error) {
+        return res.send({ done: false, message: validation.error.details[0].context.key })
+
+    }
+    data.password = hashedPassword
+
+    userModel.findOne({ userName: userName }).then(foundUser => {
+        if (foundUser) {
+            return res.send({ done: false, message: 'userName' })
+        }
+        else {
+            new userModel(data).save().then((registeredUser) => {
+                if (registeredUser) {
+                    res.send({
+                        done: true,
+                        registeredUser
+                    })
+
+                }
+            })
+        }
+    })
+})
 
 app.post('/login', (req, res) => {
     var userName = req.body.userName
     var password = req.body.password
     userModel.findOne({ userName: userName }).then((user) => {
         if (user) {
-            if (bcrypt.compareSync(password,user.password)) {
+            if (bcrypt.compareSync(password, user.password)) {
                 res.send({
                     done: true,
                     message: "Login Successful!",
@@ -110,33 +110,67 @@ app.post('/login', (req, res) => {
     })
 })
 
-app.post('/addTodo', (req,res)=>{
-    const {userName, todotext} = req.body
-    userModel.findOne({userName}).then(foundUser=>{
-        if(foundUser){
-            foundUser.todos.push({todotext})
-            foundUser.save().then(updatedUser=>{
-                if(updatedUser){
-                    res.send({done:true, updatedUser})
+app.post('/addTodo', (req, res) => {
+    const { userName, todotext } = req.body
+    userModel.findOne({ userName }).then(foundUser => {
+        if (foundUser) {
+            foundUser.todos.push({ todotext })
+            foundUser.save().then(updatedUser => {
+                if (updatedUser) {
+                    res.send({ done: true, updatedUser })
                 }
             })
         }
     })
 })
 
-app.post('/getTodos',(req,res)=>{
-    const {userName} = req.body
-    userModel.findOne({userName}).then(foundUser=>{
-        if(foundUser){
+app.post('/getTodos', (req, res) => {
+    const { userName } = req.body
+    userModel.findOne({ userName }).then(foundUser => {
+        if (foundUser) {
             console.log(foundUser)
             res.send({
-                done:true,
+                done: true,
                 todos: foundUser.todos
             })
         }
     })
 })
 
+app.post('/doneTodo', (req, res) => {
+    const { userName } = req.body
+    const { todoID } = req.body
+    userModel.findOne({ userName }).then(foundUser => {
+        if (foundUser) {
+            let flag = false;
+            let pos;
+            for (let i = 0; i < foundUser.todos.length; i++) {
+                if (foundUser.todos[i]._id == todoID) {
+                    pos = i;
+                    flag = true;
+                    break;
+                }
+                else {
+                    flag == false;
+                    continue;
+                }
+            }
+            if (flag) {
+                foundUser.todos[pos].isDone = true;
+                foundUser.save()
+                    .then((updatedUser) => {
+                        res.send({ done: true })
+                    })
+            }
+            else {
+                res.send({ done: false, message: 'Todo Not Found' })
+            }
+        }
+        else {
+            res.send({ done: false, message: 'No user exists' })
+        }
+    })
+})
 app.listen(5500, () => {
     console.log("Server is listening to you!");
 })
